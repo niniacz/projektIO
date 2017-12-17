@@ -8,8 +8,8 @@ body
 {
 	margin: 100px auto;
     width: 600px;
-    background:#A8A8A8 ;
-    color:#532;
+    background:#A9A2A5 ;
+    color:#542;
 }
 canvas
 {
@@ -22,6 +22,7 @@ canvas
     right:0;
     margin:5px;
 }
+<H1> Witaj </H1>
 </style>
 <script type="text/javascript">
 var snake = window.snake || {};
@@ -113,7 +114,7 @@ window.onload = function(){
             nakarm();
             if(is_catched(poz[0][0]*blok,poz[0][1]*blok,blok,blok,jablko[0],jablko[1],15,15))
             {
-                punkty += 10;
+                punkty += 100;
                 stworzJablko();
                 tablicaWynikow.innerHTML = punkty;
                 dodaj();
@@ -173,7 +174,7 @@ window.onload = function(){
         }
         function stworzJablko()
         {
-            jablko = [Math.round(Math.random(4)*600), Math.round(Math.random(4)*400)];
+            jablko = [Math.round(Math.random(10)*600), Math.round(Math.random(10)*400)];
         }
         function is_catched(ax,ay,awidth,aheight,bx,by,bwidth,bheight) {
             return !(
@@ -193,10 +194,10 @@ window.onload = function(){
                     snake.game.status=false;
                     ctx.clearRect(0,0,canvas.width,canvas.height);
                     ctx.font='40px san-serif';
-                    ctx.fillText('Przegrales',220,180);
+                    ctx.fillText('Przegrales, nie jest mi przykro',220,180);
                     ctx.font = '20px san-serif';
                     ctx.fillStyle='#000000';
-                    ctx.fillText('aby zagrac jeszcze raz, kliknij Restart',150,220);
+                    ctx.fillText('aby zagrac jeszcze raz, kliknij start',150,220);
                     throw ('Przegrales');
             }
             else
@@ -213,12 +214,12 @@ window.onload = function(){
             {
                 clearTimeout(snake.game.status);
                 snake.game.status=false;
-                elem.value='Play'
+                elem.value='Rozpocznij'
             }
             else
             {
                 petla();
-                elem.value='pauza';
+                elem.value='Pauza';
             }
         }
         function rozpocznij()
