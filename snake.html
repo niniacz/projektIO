@@ -1,0 +1,274 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>Snake</title>
+<style>
+body
+{
+	margin: 100px auto;
+    width: 600px;
+    background:#A8A8A8 ;
+    color:#532;
+}
+canvas
+{
+    background:#FFF;
+}
+#controls
+{
+    position:absolute;
+    top:0;
+    right:0;
+    margin:5px;
+}
+</style>
+<script type="text/javascript">
+var snake = window.snake || {};
+
+window.onload = function(){
+    
+    snake.game = (function()
+    {
+        var canvas = document.getElementById('canvas');
+        var ctx = canvas.getContext('2d');
+        var status=false;
+        var punkty = 0;
+        var staryKierunek = 'prawo';
+        var kierunek = 'prawo';
+        var blok = 15;
+        var punkty = 0;
+        var refresh_rate = 150;
+        var poz = [[5,1],[4,1],[3,1],[2,1],[1,1]];
+        var tablicaWynikow = document.getElementById('tablicaWynikow');
+        var klawisz = document.getElementById('klawiszs');
+        var klawisz = {
+            37 : 'lewo',
+            38 : 'gora',
+            39 : 'prawo',
+            40 : 'dol'
+            };
+        function dostosuj()
+        {
+            {
+                canvas.width= 600;
+                canvas.height=400;
+                klawisz.style.display='inline';
+            }
+        }
+        var jablko = [Math.round(Math.random(4)*(canvas.width - 15)), Math.round(Math.random(4)*(canvas.height - 15)),];
+        function doNarysowania()
+        {
+            for(var i = 0; i < poz.length; i++)
+            {
+                narysuj(poz[i]);
+            }
+        }
+        function giveLife()
+        {
+            var nasPozycja = poz[0].slice();
+            switch(staryKierunek)
+            {
+                case 'prawo':
+                    nasPozycja[0] += 1;
+                    break;
+                case 'lewo':
+                    nasPozycja[0] -= 1;
+                    break;
+                case 'gora':
+                    nasPozycja[1] -= 1;
+                    break;
+                case 'dol':
+                    nasPozycja[1] += 1;
+                    break;    
+            }
+            poz.unshift(nasPozycja);
+            poz.pop();
+        }
+        function dodaj()
+        {
+            var nasPozycja = poz[0].slice();
+            switch(staryKierunek)
+            {
+                case 'prawo':
+                    nasPozycja[0] += 1;
+                    break;
+                case 'lewo':
+                    nasPozycja[0] -= 1;
+                    break;
+                case 'gora':
+                    nasPozycja[1] -= 1;
+                    break;
+                case 'dol':
+                    nasPozycja[1] += 1;
+                    break;    
+            }
+            poz.unshift(nasPozycja);
+        }
+        function petla()
+        {
+            ctx.clearRect(0,0,canvas.width,canvas.height);
+            doNarysowania();
+            giveLife();
+            nakarm();
+            if(is_catched(poz[0][0]*blok,poz[0][1]*blok,blok,blok,jablko[0],jablko[1],15,15))
+            {
+                punkty += 10;
+                stworzJablko();
+                tablicaWynikow.innerHTML = punkty;
+                dodaj();
+                if(refresh_rate > 100)
+                {
+                    refresh_rate -=5;
+                }
+            }
+            snake.game.status = setTimeout(function() { petla(); },refresh_rate);
+        }
+        window.onkeydown = function(event){
+             kierunek = klawisz[event.keyCode];
+                if(kierunek)
+                {
+                    ustalKier(kierunek);
+                    event.preventDefault();
+                }
+            };
+        function ustalKier(kierunek)
+        {
+            switch(kierunek)
+            {
+                case 'lewo':
+                    if(staryKierunek!='prawo')
+                    {
+                        staryKierunek = kierunek;
+                    }
+                    break;
+                case 'prawo':
+                    if(staryKierunek!='lewo')
+                    {
+                        staryKierunek = kierunek;
+                    }
+                    break;
+                case 'gora':
+                    if(staryKierunek!='dol')
+                    {
+                        staryKierunek = kierunek;
+                    }
+                    break;
+                case 'dol':
+                    if(staryKierunek!='gora')
+                    {
+                        staryKierunek = kierunek;
+                    }
+                    break;
+            }
+
+        }
+        function nakarm()
+        {
+            ctx.beginPath();
+            ctx.fillStyle = "#ff0000";
+            ctx.fillRect(jablko[0],jablko[1],15,15);
+            ctx.fill();
+            ctx.closePath();
+        }
+        function stworzJablko()
+        {
+            jablko = [Math.round(Math.random(4)*600), Math.round(Math.random(4)*400)];
+        }
+        function is_catched(ax,ay,awidth,aheight,bx,by,bwidth,bheight) {
+            return !(
+            ((ay + aheight) < (by)) ||
+            (ay > (by + bheight)) ||
+            ((ax + awidth) < bx) ||
+            (ax > (bx + bwidth))
+            );
+        }
+        function narysuj(poz)
+        {
+            var x = poz[0] * blok;
+            var y = poz[1] * blok;
+            if(x >= canvas.width || x <= 0 || y >= canvas.height || y<= 0)
+            {
+                    document.getElementById('pause').disabled='true';
+                    snake.game.status=false;
+                    ctx.clearRect(0,0,canvas.width,canvas.height);
+                    ctx.font='40px san-serif';
+                    ctx.fillText('Przegrales',220,180);
+                    ctx.font = '20px san-serif';
+                    ctx.fillStyle='#000000';
+                    ctx.fillText('aby zagrac jeszcze raz, kliknij Restart',150,220);
+                    throw ('Przegrales');
+            }
+            else
+            {
+                ctx.beginPath();
+                ctx.fillStyle='#000000';
+                ctx.fillRect(x,y,blok,blok);
+                ctx.closePath();
+            }
+        }
+        function pauza(elem)
+        {
+            if(snake.game.status)
+            {
+                clearTimeout(snake.game.status);
+                snake.game.status=false;
+                elem.value='Play'
+            }
+            else
+            {
+                petla();
+                elem.value='pauza';
+            }
+        }
+        function rozpocznij()
+        {
+            petla();
+        }
+        function restart()
+        {
+            location.reload();
+        }
+        function start()
+        {
+            ctx.fillStyle='#000000';
+            ctx.fillRect(0,0,canvas.width,canvas.height);
+            ctx.fillStyle='#ffffff';
+            ctx.font='italic 60px san-serif';
+            ctx.fillText('Snake',220,180);
+			ctx.font = '20px san-serif';
+			ctx.fillText('klinij aby rozpoczac',210,220);
+            var img = new Image();
+            img.onload = function()
+            {
+                ctx.drawImage(img,200,300,200,200);
+                ctx.fillRect(410,330,15,15);
+            }
+            img.src ='snake.png';
+        }
+        return {
+            pauza: pause,
+            restart : restart,
+            start : start,
+            rozpocznij: rozpocznij,
+            dostosuj : dostosuj,
+        };
+    })();
+    snake.game.start();
+}
+</script>
+</head>
+<body>
+<canvas width="600" height="400" id="canvas" style="border:1px solid #333;" onclick="snake.game.rozpocznij();">
+</canvas>
+<div id="controls" style="float:right; text-align:center; ">
+    <input type="button" id="pause" value="Graj" onClick="snake.game.pause(this);" >
+    <input type="button" id="restart" value="Restart" onClick="snake.game.restart();">
+    <br/><br/>
+    <div style="font-size:24px;">
+    punkty : 
+    <span id="tablicaWynikow">0</span>
+    </div>
+</div>
+</body>
+</html>
